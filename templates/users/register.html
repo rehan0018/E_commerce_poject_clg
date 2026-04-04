@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account - AeroCart{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-[70vh] py-12">
+    <div class="glass-card w-full max-w-lg p-10 bg-white/70 border border-white shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-blue-50/30 z-0"></div>
+        
+        <div class="text-center mb-8 relative z-10">
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Create Account</h1>
+            <p class="text-gray-500 mt-2 font-medium">Join AeroCart to manage your orders securely.</p>
+        </div>
+        
+        <form method="post" action="." class="space-y-5 relative z-10">
+            {% csrf_token %}
+            
+            {% for hidden in form.hidden_fields %}
+                {{ hidden }}
+            {% endfor %}
+            
+            {% if form.non_field_errors %}
+                <div class="p-4 bg-red-50/80 backdrop-blur-sm text-red-600 text-sm rounded-xl border border-red-200 mb-6 font-medium shadow-inner">
+                    {{ form.non_field_errors }}
+                </div>
+            {% endif %}
+            
+            {% for field in form.visible_fields %}
+                <div class="mb-5">
+                    <label for="{{ field.id_for_label }}" class="block text-sm font-bold text-gray-700 mb-2">{{ field.label }}</label>
+                    <input type="{% if 'password' in field.name %}password{% else %}text{% endif %}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="glass-input shadow-sm {% if field.errors %}border-red-400 focus:border-red-500 focus:ring-red-200{% endif %}" {% if field.field.required %}required{% endif %}>
+                    
+                    {% if field.errors %}
+                        <p class="mt-1.5 text-xs font-semibold text-red-500">{{ field.errors.0 }}</p>
+                    {% elif field.help_text %}
+                        <p class="mt-1.5 text-xs font-medium text-gray-400">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            
+            <button type="submit" class="btn-primary w-full py-4 rounded-xl font-bold shadow-xl shadow-blue-500/20 text-lg tracking-wide mt-8">Create Account</button>
+        </form>
+        
+        <div class="mt-8 text-center border-t border-gray-200/80 pt-6 relative z-10 bg-white/20 -mx-10 -mb-10 p-6 rounded-b-3xl">
+            <p class="text-sm font-medium text-gray-600">Already have an account? <a href="{% url 'users:login' %}" class="font-bold text-blue-700 hover:underline hover:text-blue-900 transition-colors ml-1">Sign in</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

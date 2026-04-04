@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}Sign in - AeroCart{% endblock %}
+
+{% block content %}
+<div class="flex justify-center items-center min-h-[70vh]">
+    <div class="glass-card w-full max-w-md p-10 bg-white/70 border border-white shadow-2xl relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-b from-transparent to-blue-50/30 z-0"></div>
+        
+        <div class="text-center mb-10 relative z-10">
+            <div class="w-14 h-14 bg-gradient-to-tr from-blue-600 to-purple-500 rounded-2xl shadow-lg shadow-blue-500/30 mx-auto mb-6 transform rotate-3 flex items-center justify-center text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transform -rotate-3"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </div>
+            <h1 class="text-3xl font-black text-gray-900 tracking-tight">Welcome back</h1>
+            <p class="text-gray-500 mt-2 font-medium">Sign in to your AeroCart account.</p>
+        </div>
+        
+        <form method="post" action="." class="space-y-6 relative z-10">
+            {% csrf_token %}
+            {% if form.errors %}
+                <div class="p-4 bg-red-50/80 backdrop-blur-sm text-red-600 text-sm rounded-xl border border-red-200 flex items-start gap-3 shadow-inner">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span class="font-medium">Invalid username or password. Please try again.</span>
+                </div>
+            {% endif %}
+            
+            <div>
+                <label for="id_username" class="block text-sm font-bold text-gray-700 mb-2">Username</label>
+                <input type="text" name="username" id="id_username" required class="glass-input shadow-sm text-lg py-3" autofocus>
+            </div>
+            
+            <div>
+                <label for="id_password" class="block text-sm font-bold text-gray-700 mb-2">Password</label>
+                <input type="password" name="password" id="id_password" required class="glass-input shadow-sm text-lg py-3">
+            </div>
+            
+            <div class="flex items-center justify-between mt-2 mb-8">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500 bg-white/50">
+                    <span class="text-sm font-medium text-gray-600">Remember me</span>
+                </label>
+                <a href="#" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors hover:underline">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="btn-primary w-full py-4 rounded-xl font-bold shadow-xl shadow-blue-500/20 text-lg tracking-wide">Sign in</button>
+        </form>
+        
+        <div class="mt-8 text-center border-t border-gray-200/80 pt-6 relative z-10 bg-white/20 -mx-10 -mb-10 p-6 rounded-b-3xl">
+            <p class="text-sm font-medium text-gray-600">Don't have an account? <a href="{% url 'users:register' %}" class="font-bold text-blue-700 hover:underline hover:text-blue-900 transition-colors ml-1">Sign up now</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

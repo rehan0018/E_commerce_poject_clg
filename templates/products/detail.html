@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+    {{ product.name }} - AeroCart
+{% endblock %}
+
+{% block content %}
+<div class="glass-card overflow-hidden">
+    <div class="flex flex-col md:flex-row">
+        <!-- Image Section -->
+        <div class="md:w-1/2 p-8 md:p-12 flex items-center justify-center bg-white/40 border-r border-white/50">
+            {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="object-contain max-h-[500px] w-full mix-blend-multiply hover-zoom-img drop-shadow-xl">
+            {% else %}
+                <div class="w-full aspect-square bg-gradient-to-tr from-blue-50 to-purple-50 flex items-center justify-center rounded-2xl">
+                    <span class="text-8xl text-gray-300">📦</span>
+                </div>
+            {% endif %}
+        </div>
+        
+        <!-- Details Section -->
+        <div class="md:w-1/2 p-8 md:p-12 flex flex-col relative bg-white/20">
+            <div class="mb-2">
+                <a href="{% url 'products:product_list_by_category' product.category.slug %}" class="text-blue-600 hover:underline text-sm font-medium tracking-wide uppercase">
+                    {{ product.category.name }}
+                </a>
+            </div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-4 leading-tight">{{ product.name }}</h1>
+            
+            <div class="flex items-center gap-4 mb-6">
+                <span class="text-3xl font-bold text-gray-900">₹{{ product.price }}</span>
+                {% if product.stock > 0 %}
+                    <span class="bg-green-100 text-green-700 text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-green-200">In Stock ({{ product.stock }})</span>
+                {% else %}
+                    <span class="bg-red-100 text-red-600 text-xs font-bold px-3 py-1 rounded-full shadow-sm border border-red-200">Out of Stock</span>
+                {% endif %}
+            </div>
+            
+            <div class="prose prose-sm text-gray-600 mb-8 max-w-none flex-grow leading-relaxed">
+                {{ product.description|linebreaks }}
+            </div>
+            
+            <div class="mt-auto pt-6 border-t border-glassBorder space-y-4">
+                <div class="flex items-center gap-4">
+                    <label for="quantity" class="font-medium text-gray-700">Quantity:</label>
+                    <div class="flex items-center border border-gray-300 rounded-xl bg-white overflow-hidden shadow-sm">
+                        <button type="button" class="px-4 py-2.5 text-gray-600 hover:bg-gray-100 transition-colors bg-gray-50 font-bold" onclick="document.getElementById('quantity').value = Math.max(1, parseInt(document.getElementById('quantity').value) - 1)">-</button>
+                        <input type="number" id="quantity" value="1" min="1" max="{{ product.stock }}" class="w-16 text-center border-x border-gray-200 py-2.5 outline-none text-gray-900 font-medium m-0">
+                        <button type="button" class="px-4 py-2.5 text-gray-600 hover:bg-gray-100 transition-colors bg-gray-50 font-bold" onclick="document.getElementById('quantity').value = Math.min('{{ product.stock }}', parseInt(document.getElementById('quantity').value) + 1)">+</button>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4 pt-2">
+                    <button onclick="addToCartDetail('{{ product.id }}')" class="flex-1 btn-primary py-4 rounded-xl font-semibold flex justify-center items-center gap-2 group transform active:scale-95 transition-all text-lg" {% if not product.stock %}disabled{% endif %}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="transition-transform group-hover:-translate-y-1"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+                        Add to Cart
+                    </button>
+                    <button class="w-[60px] h-[60px] flex items-center justify-center glass-effect rounded-xl border border-glassBorder hover:border-red-200 text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all shadow-sm">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function addToCartDetail(productId) {
+        const qty = document.getElementById('quantity').value;
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = `<span class="animate-spin inline-block w-6 h-6 border-[3px] border-white text-transparent rounded-full border-t-transparent"></span>`;
+        btn.disabled = true;
+
+        fetch(`/cart/add/${productId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken'),
+            },
+            body: JSON.stringify({ quantity: qty, override: false })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.success) {
+                document.getElementById('cart-counter').innerText = data.cart_len;
+                showToast('Added to cart successfully!', 'success');
+            }
+        })
+        .catch(error => console.error('Error:', error))
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    }
+</script>
+{% endblock %}
